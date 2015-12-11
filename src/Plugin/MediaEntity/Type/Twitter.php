@@ -9,7 +9,7 @@ namespace Drupal\media_entity_twitter\Plugin\MediaEntity\Type;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityManager;
-use Drupal\media_entity\MediaBundleInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\media_entity\MediaInterface;
 use Drupal\media_entity\MediaTypeBase;
 use Drupal\media_entity\MediaTypeException;
@@ -168,80 +168,79 @@ class Twitter extends MediaTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(MediaBundleInterface $bundle) {
-    $form = array();
-
-    $options = array();
-    $allowed_field_types = array('string', 'string_long', 'link');
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $options = [];
+    $bundle = $form_state->getFormObject()->getEntity();
+    $allowed_field_types = ['string', 'string_long', 'link'];
     foreach ($this->entityManager->getFieldDefinitions('media', $bundle->id()) as $field_name => $field) {
       if (in_array($field->getType(), $allowed_field_types) && !$field->getFieldStorageDefinition()->isBaseField()) {
         $options[$field_name] = $field->getLabel();
       }
     }
 
-    $form['source_field'] = array(
+    $form['source_field'] = [
       '#type' => 'select',
       '#title' => t('Field with source information'),
       '#description' => t('Field on media entity that stores Twitter embed code or URL. You can create a bundle without selecting a value for this dropdown initially. This dropdown can be populated after adding fields to the bundle.'),
       '#default_value' => empty($this->configuration['source_field']) ? NULL : $this->configuration['source_field'],
       '#options' => $options,
-    );
+    ];
 
-    $form['use_twitter_api'] = array(
+    $form['use_twitter_api'] = [
       '#type' => 'select',
       '#title' => t('Whether to use Twitter api to fetch tweets or not.'),
       '#description' => t("In order to use Twitter's api you have to create a developer account and an application. For more information consult the readme file."),
       '#default_value' => empty($this->configuration['use_twitter_api']) ? 0 : $this->configuration['use_twitter_api'],
-      '#options' => array(
+      '#options' => [
         0 => t('No'),
         1 => t('Yes'),
-      ),
-    );
+      ],
+    ];
 
     // @todo Evauate if this should be a site-wide configuration.
-    $form['consumer_key'] = array(
+    $form['consumer_key'] = [
       '#type' => 'textfield',
       '#title' => t('Consumer key'),
       '#default_value' => empty($this->configuration['consumer_key']) ? NULL : $this->configuration['consumer_key'],
-      '#states' => array(
-        'visible' => array(
-          ':input[name="type_configuration[twitter][use_twitter_api]"]' => array('value' => '1'),
-        ),
-      ),
-    );
+      '#states' => [
+        'visible' => [
+          ':input[name="type_configuration[twitter][use_twitter_api]"]' => ['value' => '1'],
+        ],
+      ],
+    ];
 
-    $form['consumer_secret'] = array(
+    $form['consumer_secret'] = [
       '#type' => 'textfield',
       '#title' => t('Consumer secret'),
       '#default_value' => empty($this->configuration['consumer_secret']) ? NULL : $this->configuration['consumer_secret'],
-      '#states' => array(
-        'visible' => array(
-          ':input[name="type_configuration[twitter][use_twitter_api]"]' => array('value' => '1'),
-        ),
-      ),
-    );
+      '#states' => [
+        'visible' => [
+          ':input[name="type_configuration[twitter][use_twitter_api]"]' => ['value' => '1'],
+        ],
+      ],
+    ];
 
-    $form['oauth_access_token'] = array(
+    $form['oauth_access_token'] = [
       '#type' => 'textfield',
       '#title' => t('Oauth access token'),
       '#default_value' => empty($this->configuration['oauth_access_token']) ? NULL : $this->configuration['oauth_access_token'],
-      '#states' => array(
-        'visible' => array(
-          ':input[name="type_configuration[twitter][use_twitter_api]"]' => array('value' => '1'),
-        ),
-      ),
-    );
+      '#states' => [
+        'visible' => [
+          ':input[name="type_configuration[twitter][use_twitter_api]"]' => ['value' => '1'],
+        ],
+      ],
+    ];
 
-    $form['oauth_access_token_secret'] = array(
+    $form['oauth_access_token_secret'] = [
       '#type' => 'textfield',
       '#title' => t('Oauth access token secret'),
       '#default_value' => empty($this->configuration['oauth_access_token_secret']) ? NULL : $this->configuration['oauth_access_token_secret'],
-      '#states' => array(
-        'visible' => array(
-          ':input[name="type_configuration[twitter][use_twitter_api]"]' => array('value' => '1'),
-        ),
-      ),
-    );
+      '#states' => [
+        'visible' => [
+          ':input[name="type_configuration[twitter][use_twitter_api]"]' => ['value' => '1'],
+        ],
+      ],
+    ];
 
     return $form;
   }
